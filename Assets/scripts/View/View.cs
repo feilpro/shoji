@@ -12,7 +12,9 @@ public class View : MonoBehaviour
 
     Controller controller;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    SquareView[,] gridView;
+
+    // Start is called once00 before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         controller = new Controller(this);
@@ -21,14 +23,25 @@ public class View : MonoBehaviour
     // Update is called once per frame
     public void CreateGrid(ref Board board, int rows, int cols)
     {
+        gridView = new SquareView[rows, cols];
         for (int i = 0; i < rows; i++)
         {
             for(int j = 0; j < cols; j++)
             {
-                GameObject newSquare = Instantiate(boxPrefab, gridParent);
+                gridView[i,j] = Instantiate(boxPrefab, gridParent).GetComponent<SquareView>();
                 int2 coor = board.GetSquare(i, j).GetCoor;
-                newSquare.GetComponentInChildren<TextMeshProUGUI>().text = $"{coor.x},{coor.y}";
+                gridView[i, j].SetSquare(coor.x, coor.y);
             }
         }
+    }
+
+    public void AddPiece(ref Piece piece, int2 coor)
+    {
+        gridView[coor.x, coor.y].AddPiece(ref piece);
+    }
+
+    public void RemovePiece(int2 coor)
+    {
+        gridView[coor.x, coor.y].RemovePiece();
     }
 }
