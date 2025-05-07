@@ -27,7 +27,7 @@ public struct Board
 
 public class Square
 {
-    int2 coor;
+    public int2 coor;
     public Piece piece;
     public Square(int x, int y ) {
         coor = new int2(x, y);

@@ -30,7 +30,7 @@ public class View : MonoBehaviour
             {
                 gridView[i,j] = Instantiate(boxPrefab, gridParent).GetComponent<SquareView>();
                 int2 coor = board.GetSquare(i, j).GetCoor;
-                gridView[i, j].SetSquare(coor.x, coor.y);
+                gridView[i, j].SetSquare(coor.x, coor.y, this);
             }
         }
     }
@@ -43,5 +43,10 @@ public class View : MonoBehaviour
     public void RemovePiece(int2 coor)
     {
         gridView[coor.x, coor.y].RemovePiece();
+    }
+
+    public void SelectSquare(int2 gridPos)
+    {
+        controller.SelectSquare(gridPos);
     }
 }

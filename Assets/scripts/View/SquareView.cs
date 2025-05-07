@@ -1,11 +1,16 @@
 using TMPro;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SquareView : MonoBehaviour
 {
     TextMeshProUGUI text;
-    [SerializeField]Image image;
+    [Header("Components")]
+    [SerializeField] Image image;
+    [HideInInspector] public View view;
+    Button buttonComponent;
 
     [Header("Sprites")]
     [SerializeField] Sprite pawnSprite;
@@ -17,16 +22,33 @@ public class SquareView : MonoBehaviour
     [SerializeField] Sprite goldenSprite;
     [SerializeField] Sprite BlackKingSprite;
     [SerializeField] Sprite WhiteKingSprite;
+
+    int2 gridPos;
+
     void Awake()
     {
         text = GetComponentInChildren<TextMeshProUGUI>();
+        buttonComponent = GetComponentInChildren<Button>();
         //image = GetComponentInChildren<Image>();
         image.enabled = false;
     }
 
-    public void SetSquare(int x, int y)
+    private void OnEnable()
     {
-        //squareCoorText = $"{x},{y}";
+        buttonComponent.onClick.AddListener(OnSelectSquare);
+
+    }
+
+    private void OnDisable()
+    {
+        buttonComponent.onClick.RemoveListener(OnSelectSquare);
+    }
+
+    public void SetSquare(int x, int y, View view)
+    {
+        this.view = view;
+        gridPos = new int2(x, y);
+        text.text = $"{x},{y}";
     }
 
     public void AddPiece(ref Piece piece)
@@ -44,7 +66,7 @@ public class SquareView : MonoBehaviour
             PieceType.Tower => towerSprite,
             PieceType.Bishop => bishopSprite,
             PieceType.King => piece.team == Team.White ? WhiteKingSprite : BlackKingSprite,
-            _=>null
+            _ => null
         };
         image.gameObject.transform.rotation = piece.team switch {
             Team.White => Quaternion.Euler(0, 0, 0),
@@ -58,5 +80,10 @@ public class SquareView : MonoBehaviour
     {
         text.enabled = true;
         image.enabled = false;
+    }
+
+    void OnSelectSquare()
+    {
+        view?.SelectSquare(gridPos);
     }
 }

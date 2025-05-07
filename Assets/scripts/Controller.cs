@@ -1,5 +1,6 @@
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Controller
 {
@@ -9,6 +10,9 @@ public class Controller
 
     const int ROWS = 9;
     const int COLS = 9;
+
+    Team currentTurn = Team.White;
+    Piece selectedPiece = null;
 
     public Controller(View view)
     {
@@ -100,6 +104,52 @@ public class Controller
         CreatePiece(new int2(8, 0), PieceType.Spear, Team.Black);
     }
     #endregion
+
+    public void SelectSquare(int2 gridPos)
+    {
+        ref Square selectedSquare = ref board.GetSquare(gridPos.x, gridPos.y);
+        if (selectedPiece != null)
+        {
+            if (selectedSquare.piece == null) MoveSelectPiece(selectedSquare);
+            else if (selectedSquare.piece.team == currentTurn) selectedPiece = selectedSquare.piece;
+            else
+            {
+                EatPiece(selectedSquare.coor);
+                MoveSelectPiece(selectedSquare);
+            }
+
+        }
+        else
+        {
+            if (selectedSquare.piece == null) return;
+            if (selectedSquare.piece.team != currentTurn) return;
+            selectedPiece = selectedSquare.piece;
+        }
+    }
+
+    void EatPiece(int2 coor)
+    {
+
+    }
+
+    private void MoveSelectPiece(Square selectedSquare)
+    {
+        RemovePiece(selectedPiece.coor);
+        AddPiece(ref selectedPiece, selectedSquare.coor);
+        selectedPiece = null;
+    }
+    void RemovePiece(int2 coor)
+    {
+        board.GetSquare(coor.x,coor.y).piece = null;
+        view.RemovePiece(coor);
+    }
+
+    void AddPiece(ref Piece piece,int2 coor)
+    {
+        board.GetSquare(coor.x,coor.y).piece = piece;
+        piece.coor = coor;
+        view.AddPiece(ref piece, coor);
+    }
 
     ~Controller() 
     {
