@@ -9,6 +9,8 @@ public class View : MonoBehaviour
 
     [Header("view Objects")]
     [SerializeField] Transform gridParent;
+    [SerializeField] CementaryView whiteCementery;
+    [SerializeField] CementaryView blackCementery;
 
     Controller controller;
 
@@ -18,6 +20,12 @@ public class View : MonoBehaviour
     void Awake()
     {
         controller = new Controller(this);
+    }
+
+    private void Start()
+    {
+        whiteCementery.SetCementaryView(this);
+        blackCementery.SetCementaryView(this);
     }
 
     // Update is called once per frame
@@ -35,6 +43,20 @@ public class View : MonoBehaviour
         }
     }
 
+    public void EnableTeamCementary(Team team)
+    {
+        if (team == Team.White)
+        {
+            whiteCementery.EnableCementaryView();
+            blackCementery.EnableCementaryView(false);
+        }
+        else
+        {
+            whiteCementery.EnableCementaryView(false);
+            blackCementery.EnableCementaryView();
+        }
+    }
+
     public void AddPiece(ref Piece piece, int2 coor)
     {
         gridView[coor.x, coor.y].AddPiece(ref piece);
@@ -48,5 +70,16 @@ public class View : MonoBehaviour
     public void SelectSquare(int2 gridPos)
     {
         controller.SelectSquare(gridPos);
+    }
+
+    public void SelectCementaryPiece(PieceType pieceType)
+    {
+        controller.SelectedCementarySquare(pieceType);
+    }
+
+    public void UpdateCementary(Team team, PieceType pieceType, int count)
+    {
+        if(team == Team.White) whiteCementery.UpdateCellView(pieceType, count);
+        else blackCementery.UpdateCellView(pieceType, count);
     }
 }

@@ -223,6 +223,7 @@ GameObject:
   - component: {fileID: 3816215348433109132}
   - component: {fileID: 2786080610312744110}
   - component: {fileID: 3614698144825722936}
+  - component: {fileID: 2388522319653016145}
   m_Layer: 5
   m_Name: CementeryBox
   m_TagString: Untagged
@@ -331,6 +332,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2388522319653016145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4274503681886096903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47944afe93cbe8b4b8e4dfabac242ea2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  countText: {fileID: 6218287506583085990}
 --- !u!1 &4845405080359480120
 GameObject:
   m_ObjectHideFlags: 0

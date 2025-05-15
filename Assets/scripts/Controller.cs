@@ -14,12 +14,17 @@ public class Controller
     Team currentTurn = Team.White;
     Piece selectedPiece = null;
 
+    Player whitePlayer;
+    Player blackPlayer;
     public Controller(View view)
     {
         this.view = view;
         board = new Board(ROWS,COLS);
         view.CreateGrid(ref board, ROWS, COLS);
+        whitePlayer = new Player(Team.White);
+        blackPlayer = new Player(Team.Black);
         SetBoard();
+        view.EnableTeamCementary(currentTurn);
     }
 
     void SetBoard()
@@ -110,11 +115,20 @@ public class Controller
         ref Square selectedSquare = ref board.GetSquare(gridPos.x, gridPos.y);
         if (selectedPiece != null)
         {
-            if (selectedSquare.piece == null) MoveSelectPiece(selectedSquare);
-            else if (selectedSquare.piece.team == currentTurn) selectedPiece = selectedSquare.piece;
-            else
+
+            if (selectedSquare.piece == null)
+            {//mover
+                if (selectedPiece.coor.x < 0) UpdateCementaryCount(selectedPiece.type);
+                MoveSelectPiece(selectedSquare); //No hay pieza seleccionada 
+            }
+            else if (selectedSquare.piece.team == currentTurn)
             {
-                EatPiece(selectedSquare.coor);
+                if (selectedPiece.coor.x < 0) EatPiece(ref selectedPiece);
+                selectedPiece = selectedSquare.piece;
+            }
+            else if (selectedPiece.coor.x >= 0) //comer
+            {
+                EatPiece(ref selectedSquare.piece);
                 MoveSelectPiece(selectedSquare);
             }
 
@@ -127,14 +141,94 @@ public class Controller
         }
     }
 
-    void EatPiece(int2 coor)
+    public void SelectedCementarySquare(PieceType pieceType) 
     {
+        Player currentPlayer = currentTurn == Team.White ? whitePlayer : blackPlayer;
+        selectedPiece = pieceType switch
+        {
+            PieceType.Pawn => currentPlayer.sideBoard.pawns.Dequeue(),
+            PieceType.Spear => currentPlayer.sideBoard.spears.Dequeue(),
+            PieceType.Horse => currentPlayer.sideBoard.horses.Dequeue(),
+            PieceType.Silver => currentPlayer.sideBoard.silver.Dequeue(),
+            PieceType.Golden => currentPlayer.sideBoard.golden.Dequeue(),
+            PieceType.Tower => currentPlayer.sideBoard.tower.Dequeue(),
+            PieceType.Bishop => currentPlayer.sideBoard.bishops.Dequeue(),
+            _ => null
+        };
+    }
 
+    void UpdateCementaryCount(PieceType pieceType)
+    {
+        Player currentPlayer = currentTurn == Team.White ? whitePlayer : blackPlayer;
+        switch (pieceType) 
+        {
+            case PieceType.Pawn:
+                view.UpdateCementary(currentTurn,pieceType, currentPlayer.sideBoard.pawns.Count);
+                break;
+            case PieceType.Spear:
+                view.UpdateCementary(currentTurn, pieceType, currentPlayer.sideBoard.spears.Count);
+                break;
+            case PieceType.Horse:
+                view.UpdateCementary(currentTurn, pieceType, currentPlayer.sideBoard.horses.Count);
+                break;
+            case PieceType.Silver:
+                view.UpdateCementary(currentTurn, pieceType, currentPlayer.sideBoard.silver.Count);
+                break;
+            case PieceType.Golden:
+                view.UpdateCementary(currentTurn, pieceType, currentPlayer.sideBoard.golden.Count);
+                break;
+            case PieceType.Tower:
+                view.UpdateCementary(currentTurn, pieceType, currentPlayer.sideBoard.tower.Count);
+                break;
+            case PieceType.Bishop:
+                view.UpdateCementary(currentTurn, pieceType, currentPlayer.sideBoard.bishops.Count);
+                break;
+        }
+    }
+
+    void EatPiece(ref Piece eatenPiece)
+    {
+        eatenPiece.coor = new int2(-1, -1);
+        eatenPiece.team = currentTurn;
+        Player currentPlayer = currentTurn == Team.White ? whitePlayer : blackPlayer;
+        switch (eatenPiece.type)
+        {
+            case PieceType.Pawn:
+                currentPlayer.sideBoard.pawns.Enqueue((Pawn)eatenPiece);
+                Debug.Log($"{currentPlayer.sideBoard.pawns.Count}, { eatenPiece.team}");
+                view.UpdateCementary(currentTurn, eatenPiece.type, currentPlayer.sideBoard.pawns.Count);
+                break;
+            case PieceType.Spear:
+                currentPlayer.sideBoard.spears.Enqueue((Spear)eatenPiece);
+                view.UpdateCementary(currentTurn, eatenPiece.type, currentPlayer.sideBoard.spears.Count);
+                break;
+            case PieceType.Horse:
+                currentPlayer.sideBoard.horses.Enqueue((Horse)eatenPiece);
+                view.UpdateCementary(currentTurn, eatenPiece.type, currentPlayer.sideBoard.horses.Count);
+                break;
+            case PieceType.Silver:
+                currentPlayer.sideBoard.silver.Enqueue((Silver)eatenPiece);
+                view.UpdateCementary(currentTurn, eatenPiece.type, currentPlayer.sideBoard.silver.Count);
+                break;
+            case PieceType.Golden:
+                currentPlayer.sideBoard.golden.Enqueue((Golden)eatenPiece);
+                view.UpdateCementary(currentTurn, eatenPiece.type, currentPlayer.sideBoard.golden.Count);
+                break;
+            case PieceType.Tower:
+                currentPlayer.sideBoard.tower.Enqueue((Tower)eatenPiece);
+                view.UpdateCementary(currentTurn, eatenPiece.type, currentPlayer.sideBoard.tower.Count);
+                break;
+            case PieceType.Bishop:
+                currentPlayer.sideBoard.bishops.Enqueue((Bishop)eatenPiece);
+                view.UpdateCementary(currentTurn, eatenPiece.type, currentPlayer.sideBoard.bishops.Count);
+                break;
+
+        }
     }
 
     private void MoveSelectPiece(Square selectedSquare)
     {
-        RemovePiece(selectedPiece.coor);
+        if (selectedPiece.coor.x >= 0) RemovePiece(selectedPiece.coor);
         AddPiece(ref selectedPiece, selectedSquare.coor);
         selectedPiece = null;
     }
